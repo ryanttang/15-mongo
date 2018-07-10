@@ -3,6 +3,8 @@ let express = require("express");
 let bodyParser = require("body-parser");
 let logger = require("morgan");
 let mongoose = require("mongoose");
+let path = require("path");
+let methodOverride = require("method-override");
 
 // Require Note and Article models
 let Note = require("./models/Note.js");
@@ -22,16 +24,24 @@ let app = express();
 app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
 
-Require Handlebars
+// Override with POST having ?_method=PUT
+app.use(methodOverride('_method'));
+
+// Require Handlebars
 let exphbs = require("express-handlebars");
-app.engine("handlebars", exphbs({defaultLayout: "main"}));
+app.engine("handlebars", exphbs({defaultLayout: "main", layoutsDir: __dirname + "/views/layouts"}));
 app.set("view engine", "handlebars");
 
-// Make static dir public
+// Make public a static dir
 app.use(express.static("public"));
 
-// Database configuration for mongoose
-mongoose.connect("");
+// Database configuration for Mongoose
+let databaseUri = "mongodb://localhost/nbascrape";
+if (process.env.MONGODB_URI) {
+    mongoose.connect(process.env.MONGODB_URI);
+} else {
+    mongoose.connect(databaseURI);
+}
 let db = mongoose.connection;
 
 // Show Mongoose errors
@@ -47,7 +57,7 @@ db.once("open", function() {
 // Routes
 // GET request to scrape website
 
-// GET request to pull article from MongoDB
+// GET request to pull article from MonoDB
 
 // GET request to find article by ObjectId
 
