@@ -36,7 +36,7 @@ app.set("view engine", "handlebars");
 app.use(express.static("public"));
 
 // Database configuration for Mongoose
-let databaseUri = "mongodb://localhost/nbascrape";
+let databaseURI = "mongodb://localhost/nbascrape";
 if (process.env.MONGODB_URI) {
     mongoose.connect(process.env.MONGODB_URI);
 } else {
@@ -64,6 +64,6 @@ db.once("open", function() {
 // POST request for new note or replace existing note
 
 // Listen on port 3000
-appl.listen(process.env.PORT || 3000, function() {
+app.listen(process.env.PORT || 3000, function() {
     console.log("App running on port 3000.");
 });
