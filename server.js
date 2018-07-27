@@ -120,6 +120,36 @@ app.get("/articles", function(req, res) {
         }
     });
 });
+
+// Create a new note or replace an existing note
+app.post("/articles/:id", function(req, res) {
+    // Create a new note and pass the req.body to entry
+    var newNote = new Note(req.body);
+
+    // Save the new note the DB
+    newNote.save(function(error, doc) {
+        // Log Errors
+        if (error) {
+            console.log(error);
+        }
+        // Otherwise
+        else {
+                // Use Article ID to find and update its note
+                Article.findOneandUpdatee({ "_id": req.params.id }, { "note": doc._id })
+                // Execute the above query
+                .exec(function(err, doc) {
+                    // Log Errors
+                    if (err) {
+                        console.log(err);
+                    }
+                    else {
+                        // or Send Document to the browser
+                        res.send(doc);
+                    }
+                });
+        }
+    });
+});
 // Listen on port 3000
 app.listen(process.env.PORT || 3000, function() {
     console.log("App running on port 3000.");
