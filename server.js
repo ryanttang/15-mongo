@@ -56,13 +56,70 @@ db.once("open", function() {
 
 // Routes
 // GET request to scrape website
+app.get("/", function(req, res) {
+    // Grab every doc in the Articles array
+    Article.find((), function(error, doc) {
+        // Log any errors
+        if (error) {
+            console.log(error);
+        }
+        // or Send doc to browser as JSON object
+        else {
+            res.render("index", {artciles: doc});
+        }
+    });
+});
 
-// GET request to pull article from MonoDB
+// GET request to scrape the website
+app.get("/scrape", function(req, res) {
+    // Grab the body of the HTML with request
+    request("http://nypost.com/sports/", function(error, response, html) {
+        // Load into Cheerio and save as shorthand selector
+        var $ = cheerio.load(html);
+        // Grab every h2 within an article tag
+        $("article h3").each(function(i, element) {
+            // Save an empty result object
+            var result = {};
 
-// GET request to find article by ObjectId
+            // Add the text and href of every link, save as properties of the result
+            result.title = $(this).children("a").text();
+            result.link = $(this).children("a").attr("href");
 
-// POST request for new note or replace existing note
+            // Using Article model, create new entry
+            var entry = new Article(result);
 
+            // Save that entry to DB
+            entry.save(function(err, doc) {
+                // Log Errors
+                if (err) {
+                    console.log(err);
+                }
+                // or Log the Doc
+                else {
+                    console.log(doc);
+                }
+            });
+        });
+    });
+    // Tell browser scrape is complete
+    res.send("Scrape Complete");
+    res.redirect("/");
+)};
+
+// Get scraped articles from MongoDB
+app.get("/articles", function(req, res) {
+    // Grabs all article array
+    Article.find({}, function(error, doc) {
+        // Log Errors
+        if (error) {
+            console.log(error);
+        }
+        // Otherwise, send doc to the browser as JSON object
+        else {
+            res.json(doc);
+        }
+    });
+});
 // Listen on port 3000
 app.listen(process.env.PORT || 3000, function() {
     console.log("App running on port 3000.");
